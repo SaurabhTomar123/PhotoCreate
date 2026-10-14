@@ -4,7 +4,7 @@ title: "Reproduced GPU failure and remaining hypotheses"
 kind: "finding"
 status: "verified"
 date: "2026-10-13"
-evidence: ["docs/live-feature-test-results-2026-10-11.md", "dist/qa/validation-gpu-isolated-2026-10-11/gpu-mips.log"]
+evidence: ["docs/live-feature-test-results-2026-10-11.md"]
 ---
 
 The U16 partial-mip assertion reproduced on AMD Radeon Vulkan. Recorded RGBA: [5.9604645e-8, 0, 0, 0]. The small value is red; alpha is zero. Root cause is not established.
@@ -15,3 +15,5 @@ Preserve failing evidence and qualify any workaround before claiming a repair. S
 
 
 Current-build follow-up: [validated bounded mitigation](gpu-preview-fix.md). The failure above is retained baseline evidence; it does not claim the new build still fails that matrix. General native-crash root cause is unresolved.
+
+The original isolated GPU log remains in the workstation?s historical dist/qa evidence. Repository provenance uses the committed baseline report so memory validation also works in a fresh clone without ignored QA files.

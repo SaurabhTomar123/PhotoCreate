@@ -178,3 +178,12 @@ Reviewed the owner-pasted PhotoCraft Next-Gen Technical Strategy after the Claud
 ## Owner-authorized publication and integration started ? 14 October 2026
 
 The owner requested publication of the current project to `SaurabhTomar123/PhotoCreate`, followed by upstream update and merge. The target repository was empty. Preparing a named baseline checkpoint before a separate pinned upstream integration; publication now has explicit authorization. Recent privacy-filtered evidence archives are versioned under `records/`, while the original large audit archive and complete ignored QA data remain preserved locally. Current local fixes, sources, plans and Obsidian memory are included. Integration qualification is still pending.
+
+
+## Upstream candidate native gates passed ? 15 October 2026
+
+The owner-authorized current snapshot is published to PhotoCreate at `918d422f`, on main and baseline/revamp-2026-10-14. The separate integration branch merges pinned upstream `ed7df56` and preserves the local cache, mip, histogram and QA work. The corrected full native suite passed 8,396 tests, zero failures, zero native crashes and 68 ignored. Initial failures remain retained: an autosave test publication race and missing GPU guards in two targets. The autosave correction passed twenty isolated repetitions. All three historical crash targets and the new marquee target passed under normal multithreaded tests.
+
+Formatting, layers, scorecard consistency, corpus pin verification and explicit panic hunt passed. On 15 October, actual AMD Vulkan/DX12 mip readbacks passed for U8/U16/F32 across direct/scratch paths and partial updates. The first attempted GPU launch was not executed because automatic permission review timed out; the permitted retry launched and passed. The elapsed build interval crossed midnight with a long activity gap; continuous compiler work or its cause is not established.
+
+Saving the candidate to integration/upstream-2026-10-14 now preserves reviewable progress while corpus-enabled tests, documentation/lint/wasm, normal app build, release timing and recorded live workflows finish. Main remains at the protected baseline. The GPU lock changes qualify test-device concurrency locally, not universal production stability. [Candidate findings and pending gates](upstream-integration-results-2026-10-14.md).

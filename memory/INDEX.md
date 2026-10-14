@@ -9,7 +9,7 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
 - [GPU diagnosis and bounded redraw candidate](notes/finding/2026-10-13-gpu-diagnosis-and-bounded-redraw-candidate-634ec9dda171.md) — superseded
   <!-- source-sha256: 3e5737c9f0c2124030842a43aaf7f22c41cb82612b2d2071f973957c9b1e661f -->
 - [Reproduced GPU failure and remaining hypotheses](notes/finding/gpu-failures.md) — verified
-  <!-- source-sha256: 4ed5c7a0807e0a9b63f64e1b0e52bd50f7f6577eefe467dfdcf4c21b0de3e6c2 -->
+  <!-- source-sha256: 4a21acb19a83773194242f70349201849fbf394a6400564085576da9aec7e0f9 -->
 - [Bounded GPU preview mitigation validated](notes/finding/gpu-preview-fix.md) — verified
   <!-- source-sha256: 9043cb6aaed38810c88e9de473f2a2f065c1df1a8f2ba1a8753891d254d98da4 -->
 - [Layer refresh improved; interaction budgets remain open](notes/finding/layer-refresh-lag.md) — verified
@@ -66,4 +66,4 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
 - [revamp-feature-backlog-2026-10-13.csv](reference/revamp-feature-backlog-2026-10-13.csv.md) — reference
   <!-- source-sha256: a8658a80c3798378ee79f5eb3c56bd340450e492b614f96a9cdfa06a7bcf522c -->
 - [PhotoCraft revamp implementation progress](reference/implementation-progress-2026-10-13.md) — reference
-  <!-- source-sha256: 3ccc1026564bfab585309a162b90eae6988fbb74ce6265e8df2ae00ac0ca3469 -->
+  <!-- source-sha256: c633d0ecd0930dc137766de3e0f44e0b6e29c4cbc53b16ecb5ded7f4537eac40 -->
