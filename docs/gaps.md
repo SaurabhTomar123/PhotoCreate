@@ -1,6 +1,6 @@
 # Where PhotoCraft falls short of Photoshop
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-10 · **Change:** major (first version: every known shortfall ranked, from the 2026-10-10 re-measure) · **Target:** Adobe Photoshop 2026
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-14 · **Change:** minor (local shape-cache performance evidence; original assessment retained) · **Target:** Adobe Photoshop 2026
 
 Every known shortfall against Photoshop 2026 (27.11.0), one entry each, ranked by user impact
 on the way to beta. This is the work list agents pick from: take the highest-ranked entry that
@@ -158,6 +158,7 @@ what an agent can't finish alone.
 - **Estimate:** 150–250 h.
 
 ### G2. Interactive performance
+- **Local progress, 2026-10-14:** Reproduced a 33-shape working set exceeding a 32-entry split cache. A 128-entry / 128 MiB bounded cache plus Purge All integration passed native/corpus, pixel-oracle and wasm checks. Quiet paired 12 MP / 174-layer opacity median 398.06 -> 25.48 ms; pixel-move commit 401.95 -> 31.35 ms. One AMD Vulkan machine and one sequence; this does not update the original 25-scenario budget count or qualify the earlier parallel GPU crash. The 16 ms goal and demanding workloads remain open. [Evidence and recordings](implementation-progress-2026-10-13.md).
 - **Missing:** 22 of 25 budgeted scenarios are over budget (baseline 2026-10-05, a heavily
   loaded machine): layer move with styles 321 ms p50 against 25 ms, opacity change 276 ms
   against 20 ms, paste 12 MP 1.2 s against 100 ms, layer move on 15000×10000 16-bit 2.7 s,
@@ -212,5 +213,6 @@ what an agent can't finish alone.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-14 | minor | Local shape working-set cache fix measured and qualified; global budget/readiness numbers unchanged |
 | 2026-10-10 | minor | Checked against the alpha gate (no alpha blockers); #2374 marked closed |
 | 2026-10-10 | major | First version, from the full re-measure against Photoshop 2026 27.11.0 and the open issues |

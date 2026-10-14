@@ -18,6 +18,10 @@
 //! PSD round trip; `--navigator` also shows the Navigator panel; `--spin idle|select|tool|move-
 //! pixel|move-text|move-shape|move-group|move-smart|move-headline` repeats one interaction for 20 s
 //! for a sampling profiler.
+//! Set `PHOTOCRAFT_LAYOUT_TRACE=1` to log frames over 16 ms with the last command/refresh
+//! counters. These counters and spans retain their last sample; they are not per-frame totals.
+//! `PHOTOCRAFT_COMPOSE_TRACE=1` additionally reports canvas render/submission, mip submission,
+//! synchronized wait and compositor cache/work counters. Submission can block in the driver.
 
 #[path = "../tests/support/layout_doc.rs"]
 mod layout_doc;
@@ -46,7 +50,16 @@ fn ms(t: Instant) -> f64 {
 fn frame(h: &mut H) -> f64 {
     let t = Instant::now();
     h.step();
-    ms(t)
+    let elapsed = ms(t);
+    if std::env::var_os("PHOTOCRAFT_LAYOUT_TRACE").is_some() && elapsed > 16.0 {
+        let p = &h.state().perf;
+        println!("GPU identity: {:?}", p.gpu_info);
+        eprintln!(
+            "slow frame {elapsed:.2} ms: command {} {:.2} ms; last refresh {} {:.2} ms, upload {:.2} ms, pixels {}, tiles {}, fallback {:?}; retained spans {:?}",
+            p.last_command, p.command_ms, p.last_refresh, p.composite_ms, p.upload_ms, p.last_refresh_px, p.gpu_uploads, p.gpu_fallback, p.spans
+        );
+    }
+    elapsed
 }
 
 struct Rows {

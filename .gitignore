@@ -11,3 +11,9 @@ target/
 /craft-fonts
 *.log
 __pycache__/
+
+# Local project memory: curated notes are versionable; inputs/preferences are not.
+/memory/.obsidian/
+/memory/inbox/*
+!/memory/inbox/.gitkeep
+/memory/*.tmp

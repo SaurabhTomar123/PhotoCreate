@@ -1,6 +1,6 @@
 # PhotoCraft vs Adobe Photoshop: target-app parity
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-10 · **Change:** major (full re-measure against Photoshop 2026 27.11.0; merged `parity-estimate.md` and the roadmap's honest assessment into this file) · **Target:** Adobe Photoshop 2026
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-14 · **Change:** minor (local cache performance evidence; 2026-10-10 headline assessment retained) · **Target:** Adobe Photoshop 2026
 
 The authoritative answer to "how close is PhotoCraft to Photoshop, and how much work is left". The
 one-page summary is [`ROADMAP.md`](../ROADMAP.md); the ranked work list is [`gaps.md`](gaps.md);
@@ -9,6 +9,8 @@ the measured checklists are [`scorecard.md`](scorecard.md) (`cargo xtask scoreca
 [UI](ui-parity.md), [brushes and painting](brush-parity.md), [context menus](context-menu-parity.md),
 [file formats](file-format-parity.md), [hardware](hardware-parity.md),
 [localization](localization-parity.md).
+
+Local implementation update (2026-10-14): a bounded shape split cache removes a reproduced 33-shape working-set cliff. On one quiet paired AMD Vulkan 12 MP / 174-layer run, opacity median fell 398.06 -> 25.48 ms and pixel-move commit 401.95 -> 31.35 ms. Native/corpus, pixel-oracle and wasm checks passed; before/after exported PNG pixels match exactly. [Method, recordings and limits](implementation-progress-2026-10-13.md). These local results do not re-measure Photoshop parity, the 25 official performance budgets or overall readiness; native crash and broader performance qualification remain open.
 
 ## Headline (2026-10-10, PhotoCraft 0.6.0, `main` at 3e000bc1)
 
@@ -537,6 +539,7 @@ See [method and results](octagonal-mask-performance.md).
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-14 | minor | Local bounded-cache speedup evidence; historical weighted scores and readiness unchanged |
 | 2026-10-10 | minor | Readiness-by-audience table: percent and hours for full, mainstream and essentials; full number confirmed as the additive weighted sum over dimensions (46%, reported ~45%) |
 | 2026-10-10 | minor | Added mainstream-practitioner (~43%) and essentials-user (~61%) numbers with written weights and discounts; full ready-for-real-work rechecked against its written weights (46%, reported ~45%), unchanged |
 | 2026-10-10 | minor | Stage checked against the core-workflow alpha gate in `roadmap.md`: passes |

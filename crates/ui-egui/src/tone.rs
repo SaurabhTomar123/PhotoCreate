@@ -241,7 +241,10 @@ pub fn histogram_panel(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
         // Computed off the UI thread (doc clone + proxy + pixel counts cost tens of ms on
         // large documents): the panel keeps showing the previous histogram with the existing
         // "cached data" warning until the worker delivers.
-        let pending = app.hist_job.as_ref().is_some_and(|(d, r, _)| *d == doc_id && *r == rev);
+        // Keep at most one worker alive. Replacing its receiver on each edit does not cancel
+        // the old render; rapid edits would accumulate competing full-document renders.
+        // Let it finish, then schedule the latest document/revision on the following frame.
+        let pending = app.hist_job.is_some();
         if !pending {
             let (tx, rx) = std::sync::mpsc::channel();
             // No threads on the web (and a spawn can fail natively): compute inline then, and
@@ -284,8 +287,12 @@ pub fn histogram_panel(app: &mut PhotocraftApp, ui: &mut egui::Ui) {
                     app.doc_hist = Some((doc_id, *jr, crate::gpu_canvas::now_ms(), h));
                 }
                 app.hist_job = None;
+                ui.ctx().request_repaint();
             }
-            Err(std::sync::mpsc::TryRecvError::Disconnected) => app.hist_job = None,
+            Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                app.hist_job = None;
+                ui.ctx().request_repaint();
+            }
             Err(std::sync::mpsc::TryRecvError::Empty) => {}
         }
     }
@@ -369,6 +376,46 @@ mod hist_async_tests {
     use super::*;
     use crate::PhotocraftApp;
     use serde_json::json;
+
+    #[test]
+    fn edits_do_not_replace_a_running_histogram_and_latest_revision_catches_up() {
+        let mut app = PhotocraftApp::new(photocraft_engine::Session::new(), crate::Services::default());
+        app.run("file.new", json!({"width": 64, "height": 48})).unwrap();
+        let st = app.session.active().unwrap();
+        let (doc_id, before) = (st.doc.id, st.revision);
+        let (tx, rx) = std::sync::mpsc::channel();
+        app.hist_job = Some((doc_id, before, rx));
+        for _ in 0..3 {
+            app.run("layer.new.layer", json!({})).unwrap();
+        }
+        let latest = app.session.active().unwrap().revision;
+        let ctx = egui::Context::default();
+        let panel = |app: &mut PhotocraftApp| {
+            ctx.begin_pass(Default::default());
+            let mut ui = egui::Ui::new(
+                ctx.clone(),
+                egui::Id::new("hist-coalesce"),
+                egui::UiBuilder::new().max_rect(Rect::from_min_size(egui::Pos2::ZERO, vec2(300.0, 200.0))),
+            );
+            histogram_panel(app, &mut ui);
+            let mut output = ctx.end_pass();
+            output.textures_delta.clear();
+        };
+        panel(&mut app);
+        assert_eq!(app.hist_job.as_ref().map(|j| (j.0, j.1)), Some((doc_id, before)));
+        tx.send((doc_id, 1.0, Arc::new(Histograms::default()))).unwrap();
+        panel(&mut app);
+        assert!(app.hist_job.is_none());
+        assert_eq!(app.doc_hist.as_ref().unwrap().1, before, "old result stays explicitly stale");
+        app.doc_hist.as_mut().unwrap().2 = -1000.0;
+        panel(&mut app);
+        if let Some(job) = app.hist_job.take() {
+            assert_eq!((job.0, job.1), (doc_id, latest));
+            let (_, _, h) = job.2.recv().unwrap();
+            app.doc_hist = Some((doc_id, latest, 0.0, h));
+        }
+        assert_eq!(app.doc_hist.as_ref().unwrap().1, latest);
+    }
 
     /// The panel schedules the histogram on a worker and keeps showing the previous data
     /// until it lands: right after the trigger the job exists (nothing computed in this

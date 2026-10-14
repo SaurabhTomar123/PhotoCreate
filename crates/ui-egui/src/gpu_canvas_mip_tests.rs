@@ -52,49 +52,70 @@ fn read_mips(gpu: &GpuCanvas, key: u64) -> Vec<Vec<[f32; 4]>> {
 #[test]
 fn canvas_mips_preserve_opaque_pixels_and_partial_updates() {
     let rs = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| egui_kittest::wgpu::create_render_state(wgpu_setup(), Default::default())));
-    let Ok(rs) = rs else {
-        eprintln!("skipping mip readback: no GPU adapter");
-        return;
-    };
+    let rs = rs.expect("mip readback requires a usable GPU adapter; unavailable setup is not a passing test");
     eprintln!("mip readback adapter: {:?}", rs.adapter.get_info());
     let gpu = GpuCanvas::new(&rs);
     // Both mip paths: straight into the level, and the DX12 scratch-texture workaround.
+    let mut failed = Vec::new();
     for separate in [false, true] {
         gpu.rs.renderer.write().callback_resources.get_mut::<Resources>().unwrap().separate_mip_targets = separate;
-        check_mips(&gpu);
+        eprintln!("mip path: separate_targets={separate}");
+        // Retain evidence for both paths even when the first hits an invariant failure.
+        if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| check_mips(&gpu, separate))).is_err() {
+            failed.push(separate);
+        }
+    }
+    assert!(failed.is_empty(), "mip invariants failed for separate_targets={failed:?}");
+}
+
+fn check_mips(gpu: &GpuCanvas, separate: bool) {
+    for alpha in [1.0, 0.375, 0.0] {
+        check_mips_with_alpha(gpu, separate, alpha);
     }
 }
 
-fn check_mips(gpu: &GpuCanvas) {
+fn check_mips_with_alpha(gpu: &GpuCanvas, separate: bool, alpha: f32) {
     for depth in [SampleType::U8, SampleType::U16, SampleType::F32] {
         for (w, h) in [(1791, 1083), (513, 1), (1, 513)] {
-            let mut full = Buffer::filled(Rect::from_xywh(0, 0, w, h), [0.25, 0.5, 0.75, 1.0]);
+            eprintln!("mip case: {depth:?} {w}x{h}, alpha={alpha}, separate_targets={separate}");
+            let mut full = Buffer::filled(Rect::from_xywh(0, 0, w, h), [0.25, 0.5, 0.75, alpha]);
             // Reusing the key also covers replacing textures after a size or depth change.
             gpu.upload_buffer_full(1, &full, depth);
             for (level, pixels) in read_mips(gpu, 1).iter().enumerate() {
                 for pixel in pixels {
-                    assert!((pixel[3] - 1.0).abs() < 0.001, "{depth:?} {w}x{h} mip {level}: {pixel:?}");
-                    for (actual, expected) in pixel.iter().zip([0.25, 0.5, 0.75, 1.0]) {
+                    assert!((pixel[3] - alpha).abs() < 0.005, "{depth:?} {w}x{h} mip {level}: {pixel:?}");
+                    for (actual, expected) in pixel.iter().zip([0.25 * alpha, 0.5 * alpha, 0.75 * alpha, alpha]) {
                         assert!((actual - expected).abs() < 0.005, "{depth:?} {w}x{h} mip {level}: {pixel:?}");
                     }
                 }
             }
-            let patch = Rect::from_xywh((w / 2) as i32, (h / 2) as i32, (w / 3).max(1), (h / 3).max(1));
-            let changed = Buffer::filled(patch, [1.0, 0.0, 0.0, 1.0]);
-            assert!(gpu.upload_buffer_rect(1, &changed));
-            for y in patch.y0..patch.y1 {
-                for x in patch.x0..patch.x1 {
-                    full.px[y as usize * w as usize + x as usize] = [1.0, 0.0, 0.0, 1.0];
+            for patch in [
+                Rect::from_xywh((w / 2) as i32, (h / 2) as i32, (w / 3).max(1), (h / 3).max(1)),
+                Rect::from_xywh(0, 0, w.min(13), h.min(11)),
+                Rect::from_xywh((w - 1) as i32, (h - 1) as i32, 1, 1),
+            ] {
+                let changed = Buffer::filled(patch, [1.0, 0.0, 0.0, 1.0]);
+                assert!(gpu.upload_buffer_rect(1, &changed));
+                for y in patch.y0..patch.y1 {
+                    for x in patch.x0..patch.x1 {
+                        full.px[y as usize * w as usize + x as usize] = [1.0, 0.0, 0.0, 1.0];
+                    }
                 }
-            }
-            gpu.upload_buffer_full(2, &full, depth);
-            let partial = read_mips(gpu, 1);
-            let rebuilt = read_mips(gpu, 2);
-            for (level, (actual, expected)) in partial.iter().zip(&rebuilt).enumerate() {
-                for (a, b) in actual.iter().zip(expected) {
-                    assert!((a[3] - 1.0).abs() < 0.001, "partial {depth:?} mip {level}: {a:?}");
-                    for (a, b) in a.iter().zip(b) {
-                        assert!((a - b).abs() < 0.005, "partial/full mismatch {depth:?} {w}x{h} mip {level}: {a} != {b}");
+                gpu.upload_buffer_full(2, &full, depth);
+                let partial = read_mips(gpu, 1);
+                let rebuilt = read_mips(gpu, 2);
+                for (level, (actual, expected)) in partial.iter().zip(&rebuilt).enumerate() {
+                    for (index, (a, b)) in actual.iter().zip(expected).enumerate() {
+                        let width = (w >> level).max(1) as usize;
+                        let (x, y) = (index % width, index / width);
+                        let expected_alpha = if alpha == 1.0 { 1.0 } else { b[3] };
+                        assert!(
+                            (a[3] - expected_alpha).abs() < 0.001,
+                            "partial {depth:?} {w}x{h} mip {level} pixel ({x},{y}), separate_targets={separate}: {a:?}"
+                        );
+                        for (a, b) in a.iter().zip(b) {
+                            assert!((a - b).abs() < 0.005, "partial/full mismatch {depth:?} {w}x{h} mip {level}: {a} != {b}");
+                        }
                     }
                 }
             }

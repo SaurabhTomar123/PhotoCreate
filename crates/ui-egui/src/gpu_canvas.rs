@@ -430,6 +430,7 @@ impl GpuCanvas {
         let keep_hdr = i32::from(format == FORMAT_HIGH);
         // Last-resort guard: a wgpu panic (e.g. polling a device lost mid-refresh) marks the
         // device lost instead of taking the app and its documents down.
+        let render_started = now_ms();
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             comp.render(device, queue, doc, region, |enc, out| {
                 for t in &d.tiles {
@@ -478,15 +479,36 @@ impl GpuCanvas {
             Some(f) => Err(photocraft_gpu::Unsupported(f.to_string())),
             None => result,
         };
+        let render_ms = now_ms() - render_started;
+        let mut mips_ms = 0.0;
+        let mut wait_ms = 0.0;
         if result.is_ok() {
+            let started = now_ms();
             d.regenerate_mips(device, queue, res, [region.x0 as u32, region.y0 as u32, region.x1 as u32, region.y1 as u32]);
+            mips_ms = now_ms() - started;
             if std::env::var_os("PHOTOCRAFT_GPU_SYNC").is_some() {
                 // Benchmarking: wait for the GPU so callers can time the whole refresh.
+                let started = now_ms();
                 #[cfg(not(target_arch = "wasm32"))]
                 self.health.wait(device, None);
+                wait_ms = now_ms() - started;
             }
         } else if fresh {
             res.docs.remove(&key);
+        }
+        if std::env::var_os("PHOTOCRAFT_COMPOSE_TRACE").is_some()
+            && let Ok(stats) = &result
+        {
+            // Encoding/submission can also block in the driver; this is not pure CPU time.
+            // Diagnostic output failure must never take down the editor.
+            use std::io::Write as _;
+            let _ = writeln!(
+                std::io::stderr().lock(),
+                "compose stages: render-submit {render_ms:.2} ms, mip-submit {mips_ms:.2} ms, sync-wait {wait_ms:.2} ms; region {region:?}; resident {} bytes, budget {} bytes, prefix-cache {} bytes; {stats:?}",
+                comp.resident_bytes(),
+                comp.memory_budget(),
+                comp.composite_cache_bytes()
+            );
         }
         res.compositor = Some(comp);
         result
@@ -1433,6 +1455,17 @@ fn mip_count(w: u32, h: u32) -> u32 {
     32 - w.max(h).max(1).leading_zeros()
 }
 
+/// Small reduced previews are cheap to redraw in full. Clearing and redrawing them avoids
+/// corrupted untouched texels after partial updates on the tested AMD Vulkan adapter.
+fn mip_damage(r: [u32; 4], size: [u32; 2]) -> [u32; 4] {
+    let [w, h] = size;
+    if w <= 64 && h <= 64 {
+        [0, 0, w, h]
+    } else {
+        [(r[0] / 2).saturating_sub(1), (r[1] / 2).saturating_sub(1), (r[2].div_ceil(2) + 1).min(w), (r[3].div_ceil(2) + 1).min(h)]
+    }
+}
+
 /// A buffer holding `contents`, like `DeviceExt::create_buffer_init` but without its panic when
 /// the device was lost (an invalid buffer has no mapped range): the buffer is then just invalid.
 fn init_buffer(device: &wgpu::Device, label: &str, contents: &[u8], usage: wgpu::BufferUsages) -> wgpu::Buffer {
@@ -1526,8 +1559,7 @@ impl DocTextures {
             for level in 1..t.levels.len() {
                 let (lw, lh) = ((tw >> level).max(1), (th >> level).max(1));
                 // Damage at this level, padded by one texel for odd-size rounding.
-                (x0, y0) = ((x0 / 2).saturating_sub(1), (y0 / 2).saturating_sub(1));
-                (x1, y1) = ((x1.div_ceil(2) + 1).min(lw), (y1.div_ceil(2) + 1).min(lh));
+                [x0, y0, x1, y1] = mip_damage([x0, y0, x1, y1], [lw, lh]);
                 let bg = device.create_bind_group(&wgpu::BindGroupDescriptor {
                     label: Some("pc_mip"),
                     layout: &res.mip_bgl,
@@ -1557,7 +1589,9 @@ impl DocTextures {
                 });
                 let (target, load) = match &scratch {
                     Some((_, view)) => (view, wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT)),
-                    None => (&t.levels[level], wgpu::LoadOp::Load),
+                    None => {
+                        (&t.levels[level], if [x0, y0, x1, y1] == [0, 0, lw, lh] { wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT) } else { wgpu::LoadOp::Load })
+                    }
                 };
                 let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: Some("pc_mip"),
@@ -2042,6 +2076,14 @@ mod mip_tests;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn small_mip_damage_redraws_the_whole_level() {
+        assert_eq!(mip_damage([54, 31, 96, 59], [55, 33]), [0, 0, 55, 33]);
+        assert_eq!(mip_damage([100, 0, 200, 1], [64, 1]), [0, 0, 64, 1]);
+        assert_eq!(mip_damage([0, 100, 1, 200], [1, 64]), [0, 0, 1, 64]);
+        assert_eq!(mip_damage([224, 128, 380, 230], [447, 270]), [111, 63, 191, 116]);
+    }
 
     #[test]
     fn gpu_budget_follows_memory_usage_and_ram() {
