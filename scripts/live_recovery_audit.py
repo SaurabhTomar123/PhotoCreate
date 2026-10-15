@@ -67,6 +67,12 @@ def simulate_missing_sidecar(audit, info):
     return "state/interrupted-sidecar.json"
 
 
+def document_layers(state):
+    """Compare inspected document data, excluding the shell's active-layer selection."""
+    return [{key: value for key, value in layer.items() if key != "selected"}
+            for layer in state["document"]["layers"]]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--app", type=Path, required=True)
@@ -132,7 +138,7 @@ def main():
         if args.simulate_missing_sidecar:
             assert restored["session"]["documents"][0]["path"] is None, "Missing metadata must not invent the original save path"
         assert restored["session"]["documents"][0]["dirty"], "Recovery must not claim edits were saved to the original master"
-        assert restored["document"]["layers"] == before["document"]["layers"], "Recovered layer data differs"
+        assert document_layers(restored) == document_layers(before), "Recovered layer data differs"
         actual = [audit.engine("document.pixel", {"x": x, "y": 150}) for x in [110, 350, 490]]
         assert actual == expected, "Recovered composite samples differ"
         audit.screenshot("recovered-editable-master")
@@ -141,7 +147,7 @@ def main():
         audit.call("app.save", {"path": "samples/recovered.png"})
         audit.engine("file.closeAll")
         audit.call("app.open", {"path": "samples/recovered-master.pcraft"})
-        assert audit.state()["document"]["layers"] == before["document"]["layers"], "Saved recovered master lost layer data"
+        assert document_layers(audit.state()) == document_layers(before), "Saved recovered master lost layer data"
         assert [audit.engine("document.pixel", {"x": x, "y": 150}) for x in [110, 350, 490]] == expected
         audit.screenshot("recovered-master-reopened")
         time.sleep(2)

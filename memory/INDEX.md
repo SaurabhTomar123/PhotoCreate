@@ -26,7 +26,7 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
 - [Owner direction: beginner success with professional depth](notes/decision/product-direction.md) — verified
   <!-- source-sha256: e195c0ac6ec6af360c29b536bb9cf8b1ea59d2245d2cbc1ba0ded1043114629d -->
 - [Proposed upstream integration with a protected experience layer](notes/decision/upstream-integration-strategy-review-2026-10-14.md) — proposed
-  <!-- source-sha256: 49632fcc0ff0d580ecd00a09c589ccbb00a8613bedd91880afd9b6174e0bc369 -->
+  <!-- source-sha256: befbdca808a6f4fefa339212c51b2cde91b2881e5290fca7425652f369a94ed9 -->
 
 ## Session
 
@@ -40,6 +40,8 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
   <!-- source-sha256: 4e3337d17696ad04768e94fc97a1a420b937adf3e12acc1541ff7c13244b7596 -->
 - [Shape-cache optimization qualified with recordings](notes/session/shape-cache-qualification-2026-10-14.md) — verified
   <!-- source-sha256: ea78c26886f8270792f344d3e49537307ab6efa6c86fb5138b927bbd163bda3c -->
+- [Pinned upstream merge and recorded qualification](notes/session/upstream-integration-2026-10-15.md) — verified
+  <!-- source-sha256: 20e2ba2f8930a154a19d4e8fa98e230de759a84741a0ead0f13614fae01b362b -->
 
 ## System
 
@@ -64,6 +66,6 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
 - [PhotoCraft project evaluation](reference/project-evaluation-2026-10-11.md) — reference
   <!-- source-sha256: 689aeddd3662ecf14dbe8e6b0ef2e435488e35c8f70ff3d1683797972da1032a -->
 - [revamp-feature-backlog-2026-10-13.csv](reference/revamp-feature-backlog-2026-10-13.csv.md) — reference
-  <!-- source-sha256: a8658a80c3798378ee79f5eb3c56bd340450e492b614f96a9cdfa06a7bcf522c -->
+  <!-- source-sha256: 3a0da6ae7c06e30a6b04b3e64525381ec9d88a3415d5405b2333eb5917acdbd7 -->
 - [PhotoCraft revamp implementation progress](reference/implementation-progress-2026-10-13.md) — reference
-  <!-- source-sha256: c633d0ecd0930dc137766de3e0f44e0b6e29c4cbc53b16ecb5ded7f4537eac40 -->
+  <!-- source-sha256: 858a5cd761cba36b27c7c7269b939e767f5e74675407c8c009ef062d38209cf4 -->

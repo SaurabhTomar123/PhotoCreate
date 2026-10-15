@@ -6,10 +6,17 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
-from live_recovery_audit import simulate_missing_sidecar, wait_snapshot
+from live_recovery_audit import document_layers, simulate_missing_sidecar, wait_snapshot
 
 
 class SnapshotTests(unittest.TestCase):
+    def test_document_comparison_excludes_only_shell_selection(self):
+        before = {"document": {"layers": [{"id": 2, "selected": True, "bounds": [1, 2, 3, 4], "opacity": 1.0}]}}
+        after = {"document": {"layers": [{"id": 2, "selected": False, "bounds": [1, 2, 3, 4], "opacity": 1.0}]}}
+        self.assertEqual(document_layers(before), document_layers(after))
+        after["document"]["layers"][0]["bounds"] = [1, 2, 30, 4]
+        self.assertNotEqual(document_layers(before), document_layers(after))
+
     def test_missing_sidecar_simulation_preserves_metadata_and_leaves_bundle(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)

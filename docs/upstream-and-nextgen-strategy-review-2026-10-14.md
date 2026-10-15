@@ -68,3 +68,6 @@ Also preserve the bounded U16 mip mitigation and readback matrix, histogram work
 5. Prepare generic patches for review when requested. Keep the artistic Atelier direction, guided creation and progressive precision as our product layer. Sync local memory with each actual implementation result.
 
 The integration has not been built or tested. The text preview is evidence of likely merge work, not assurance that pulling is safe. The existing checkout and all current implementation evidence remain intact.
+
+
+Subsequent execution (15 October): the owner explicitly authorized publication and merge after this review. See [integration results](upstream-integration-results-2026-10-14.md). The review-time statements above are historical; broader strategy proposals are not all implemented.

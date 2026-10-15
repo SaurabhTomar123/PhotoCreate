@@ -332,6 +332,8 @@ fn main() {
     // Auto-Select on: a click on the canvas selects the layer under the pointer; a press on a
     // type layer that isn't selected drags it.
     h.state_mut().ui.tool_options.move_auto_select = true;
+    // This workload selects individual layers; the product default is Group (#4056).
+    h.state_mut().ui.tool_options.move_target = "layer".into();
     if let (Some(a), Some(b)) = (point_on(&h, text), point_on(&h, pixel)) {
         let mut i = 0u32;
         rows.time("click the canvas (auto-select a layer)", || {
@@ -352,7 +354,9 @@ fn main() {
             .map(|i| {
                 select(&mut h, pixel);
                 settle(&mut h, 2);
-                drag(&mut h, from, if i.is_multiple_of(2) { [25.0, 0.0] } else { [-25.0, 0.0] }, 8)
+                let times = drag(&mut h, from, if i.is_multiple_of(2) { [25.0, 0.0] } else { [-25.0, 0.0] }, 8);
+                assert_eq!(h.state().session.active().expect("doc").active_layer, Some(headline), "auto-select must move the headline, not its group");
+                times
             })
             .collect();
         move_rows(&mut rows, "auto-select type", &drags);
@@ -361,7 +365,7 @@ fn main() {
     println!("perf spans: {:?}", h.state().perf.spans);
     if let Some(out) = arg(&args, "--json") {
         let r: Vec<Value> = rows.rows.iter().map(|(n, med, p90, max)| json!({"name": n, "median_ms": med, "p90_ms": p90, "max_ms": max})).collect();
-        let report = json!({"width": spec.width, "height": spec.height, "layers": n, "text_layers": texts, "rows": r});
+        let report = json!({"width": spec.width, "height": spec.height, "layers": n, "text_layers": texts, "auto_select_target": "layer", "rows": r});
         std::fs::write(&out, serde_json::to_string_pretty(&report).expect("json")).expect("write json");
     }
 }

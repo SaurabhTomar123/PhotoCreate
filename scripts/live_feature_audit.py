@@ -988,9 +988,15 @@ class Audit:
             self.pointer("Brush", [(900, 550, 1), (1100, 650, 1), (1400, 900, 1)])
             painted = self.engine("document.pixel", {"x": 1100, "y": 650})
             assert before != painted, "Partial brush edit did not change the sampled pixel"
+            # End painting before the separate reduced-preview/navigation demonstration.
+            # Keep history assertions strict: navigation must not introduce another edit.
+            self.call("ui.set", {"tool": "move"})
+            stroke_history = self.state()["document"]["history"]
+            assert stroke_history.count("Brush Tool") == 1, "One control gesture must create one brush history entry"
             for zoom in [.25, .125, .03125]:
                 self.call("ui.set", {"zoom": zoom})
                 self.capture(row, "edited-zoom-" + str(zoom))
+                assert self.state()["document"]["history"] == stroke_history, "Preview navigation introduced a document edit"
             self.engine("edit.undo")
             assert self.engine("document.pixel", {"x": 1100, "y": 650}) == before, "Undo failed to restore the source pixel"
             self.capture(row, "undo")

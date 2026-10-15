@@ -1,7 +1,7 @@
 <!-- Generated reference snapshot; edit the canonical source, then run project_memory.py index. -->
 Canonical source: [docs/implementation-progress-2026-10-13.md](../../docs/implementation-progress-2026-10-13.md)
 
-Source content SHA-256: `c633d0ecd0930dc137766de3e0f44e0b6e29c4cbc53b16ecb5ded7f4537eac40`
+Source content SHA-256: `858a5cd761cba36b27c7c7269b939e767f5e74675407c8c009ef062d38209cf4`
 
 # PhotoCraft revamp implementation progress
 
@@ -192,3 +192,13 @@ The owner-authorized current snapshot is published to PhotoCreate at `918d422f`,
 Formatting, layers, scorecard consistency, corpus pin verification and explicit panic hunt passed. On 15 October, actual AMD Vulkan/DX12 mip readbacks passed for U8/U16/F32 across direct/scratch paths and partial updates. The first attempted GPU launch was not executed because automatic permission review timed out; the permitted retry launched and passed. The elapsed build interval crossed midnight with a long activity gap; continuous compiler work or its cause is not established.
 
 Saving the candidate to integration/upstream-2026-10-14 now preserves reviewable progress while corpus-enabled tests, documentation/lint/wasm, normal app build, release timing and recorded live workflows finish. Main remains at the protected baseline. The GPU lock changes qualify test-device concurrency locally, not universal production stability. [Candidate findings and pending gates](../../docs/upstream-integration-results-2026-10-14.md).
+
+## Upstream integration completed ? 15 October 2026
+
+Published the protected revamp checkpoint `918d422f` to PhotoCreate before merging pinned upstream `ed7df56` (750 upstream commits). Integration merge `ee75a490` preserves our shape-cache policy/generation guard, single purge, U16 mip mitigation, histogram coalescing, documentation, audit scripts and beginner-first direction. The final qualification commit adds benchmark/QA corrections, records and memory. Main is promoted by fast-forward; baseline/revamp-2026-10-14 remains restorable. No upstream push or force push is used.
+
+Final gates: 8,396 native tests passed (68 ignored), 3,532 corpus-enabled tests passed (27 ignored), documentation tests, strict workspace clippy, 24 wasm checks, formatting, layers, scorecard, corpus pins, HEIF desktop build and explicit panic hunt passed. Wasm retains a nonfatal upstream dead-code warning. Actual AMD Vulkan and DX12 mip matrices passed. Corrected release comparison is mixed: opacity median 22.57 ? 29.49 ms, group move commit 112.71 ? 96.82 ms and smart-object commit 48.12 ? 33.62 ms. These are fixture frame/command timings, not physical p95. Upstream's changed Group default is preserved; the benchmark explicitly selects Layer and asserts the target.
+
+Recorded layout assertions passed, with an unplanned tile displacement visible. Two high-depth brush captures failed single-undo pixel restoration after extra history entries, and a third capture timed out before editing; their cause remains unresolved and all failed records are retained. The integrated missing-sidecar recovery retry passed: completed revisions 5/6, owned-child interruption, metadata preserved/removed in the synthetic profile, three editable layers restored dirty with no invented path, native save/reopen and independent whole-image PNG oracle. Recovery footage is 1 second before and 3.5 seconds after; waits/second edit/interruption are transcript evidence. This is not power-loss or interrupted-write qualification.
+
+[Full integration findings and limitations](../../docs/upstream-integration-results-2026-10-14.md), [downloadable recordings and outputs](../../records/README.md). Backlog and Obsidian-compatible local memory updated. Atelier/recipes, input-capture isolation, interaction latency, wider GPU/recovery coverage and independent Photoshop acceptance remain open. No cloud memory, AI service, upstream maintainer issue or nightly rebase was configured.
