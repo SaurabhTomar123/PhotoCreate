@@ -1,0 +1,12 @@
+{"command":"shape.create","result":{"bounds":[0,0,1600,760],"fill":"#d6452b","kind":"rect","layer":3,"live":{"kind":"rect","radii":[0.0,0.0,0.0,0.0],"rect":[0.0,0.0,1600.0,760.0]},"name":"Colour block","path":{"fillRule":"nonzero","inverted":false,"subpaths":[{"closed":true,"knots":[{"anchor":[0.0,0.0],"in":[0.0,0.0],"out":[0.0,0.0],"smooth":false},{"anchor":[1600.0,0.0],"in":[1600.0,0.0],"out":[1600.0,0.0],"smooth":false},{"anchor":[1600.0,760.0],"in":[1600.0,760.0],"out":[1600.0,760.0],"smooth":false},{"anchor":[0.0,760.0],"in":[0.0,760.0],"out":[0.0,760.0],"smooth":false}],"op":"combine"}]},"stroke":null}}
+{"command":"shape.create","result":{"bounds":[560,520,920,1200],"fill":"#222222","kind":"rect","layer":4,"live":{"kind":"rect","radii":[0.0,0.0,0.0,0.0],"rect":[560.0,520.0,920.0,1200.0]},"name":"Photo frame","path":{"fillRule":"nonzero","inverted":false,"subpaths":[{"closed":true,"knots":[{"anchor":[560.0,520.0],"in":[560.0,520.0],"out":[560.0,520.0],"smooth":false},{"anchor":[1480.0,520.0],"in":[1480.0,520.0],"out":[1480.0,520.0],"smooth":false},{"anchor":[1480.0,1720.0],"in":[1480.0,1720.0],"out":[1480.0,1720.0],"smooth":false},{"anchor":[560.0,1720.0],"in":[560.0,1720.0],"out":[560.0,1720.0],"smooth":false}],"op":"combine"}]},"stroke":null}}
+{"command":"file.placeEmbedded","result":{"bounds":[0.0,360.0,1600.0,1640.8333333333335],"layer":8,"scale":83.33333333333334,"smartObject":true}}
+{"command":"edit.transform","result":{"rect":[0.0,360.0,1600.0,1641.0]}}
+{"command":"layer.setProps","result":null}
+{"command":"layer.newAdjustmentLayer.blackWhite","result":{"layer":11}}
+{"command":"layer.setProps","result":null}
+{"command":"type.create","result":{"bounds":[110,169,591,330],"layer":12}}
+{"command":"type.create","result":{"bounds":[109,395,1089,565],"layer":13}}
+{"command":"type.create","result":{"bounds":[112,869,409,902],"layer":14}}
+{"command":"type.create","result":{"bounds":[112,919,206,952],"layer":15}}
+{"command":"type.create","result":{"bounds":[113,1698,203,1722],"layer":16}}

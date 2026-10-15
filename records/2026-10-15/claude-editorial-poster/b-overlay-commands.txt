@@ -1,0 +1,9 @@
+{"command":"file.placeEmbedded","result":{"bounds":[0.0,360.0,1600.0,1640.8333333333335],"layer":6,"scale":83.33333333333334,"smartObject":true}}
+{"command":"edit.transform","result":{"rect":[0.0,360.0,1600.0,1641.0]}}
+{"command":"layer.setProps","result":null}
+{"command":"layer.newAdjustmentLayer.gradientMap","result":{"layer":9}}
+{"command":"layer.setProps","result":null}
+{"command":"layer.newFillLayer.gradient","result":{"layer":10}}
+{"command":"layer.setProps","result":null}
+{"command":"type.create","result":{"bounds":[112,1478,1227,1705],"layer":11}}
+{"command":"type.create","result":{"bounds":[116,1766,611,1802],"layer":12}}
