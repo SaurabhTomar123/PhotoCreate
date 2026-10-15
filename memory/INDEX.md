@@ -37,7 +37,7 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
 - [System specification and local memory setup](notes/session/2026-10-13-system-specification-and-local-memory-setup-e2bd9b420164.md) — verified
   <!-- source-sha256: 5d8f7b5e1196fdae9e28e82eb0e9332ea53fe371d486b220d837ec45b2a3561d -->
 - [Codex upstream lane started while Claude works separately](notes/session/codex-lane-start-2026-10-15.md) — reported
-  <!-- source-sha256: 4fc03fc1c321b42b24d724781a6a8a167d54386cb2c6fa386efef7c6f6ce9fb7 -->
+  <!-- source-sha256: ecd236697455d9c6485850728c9c98a62c9dfba950f13e54d8317ae5c361ce66 -->
 - [First implementation batch and retained records](notes/session/first-implementation-batch.md) — verified
   <!-- source-sha256: 27ff47122ba8ee652e0ee9ea2e71c4ecb4abf5fb2cb68274bd8caea78c3f04db -->
 - [Latest completed autosave recovered in a live interrupted session](notes/session/live-recovery-qualification-2026-10-14.md) — verified
