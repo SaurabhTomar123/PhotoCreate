@@ -21,6 +21,8 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
 
 ## Decision
 
+- [Equal-effort Codex and Claude work allocation](notes/decision/codex-claude-work-split-2026-10-15.md) — proposed
+  <!-- source-sha256: 63161c1c5f5d3dcfa8458ccf045022f8bc9267390c1e3bcf408af70e8604b339 -->
 - [Memory choice: local Markdown and bounded recall](notes/decision/local-memory.md) — proposed
   <!-- source-sha256: 8edfd6091ea19545c0487ace1c2655268c2420212009668e1b7e509ea678f060 -->
 - [Owner direction: beginner success with professional depth](notes/decision/product-direction.md) — verified
@@ -66,6 +68,6 @@ Sources are canonical. Evidence labels describe provenance, not permission or im
 - [PhotoCraft project evaluation](reference/project-evaluation-2026-10-11.md) — reference
   <!-- source-sha256: 689aeddd3662ecf14dbe8e6b0ef2e435488e35c8f70ff3d1683797972da1032a -->
 - [revamp-feature-backlog-2026-10-13.csv](reference/revamp-feature-backlog-2026-10-13.csv.md) — reference
-  <!-- source-sha256: 3a0da6ae7c06e30a6b04b3e64525381ec9d88a3415d5405b2333eb5917acdbd7 -->
+  <!-- source-sha256: 769ce456c7e5b6e8b21c2dc90b0a1912722d2d6521d4475cc7bdafa6f9a04084 -->
 - [PhotoCraft revamp implementation progress](reference/implementation-progress-2026-10-13.md) — reference
-  <!-- source-sha256: 858a5cd761cba36b27c7c7269b939e767f5e74675407c8c009ef062d38209cf4 -->
+  <!-- source-sha256: 83dade941e24bf9ac1a93eec85ebae32597609c9420ed087b4b91fd327ba8eee -->

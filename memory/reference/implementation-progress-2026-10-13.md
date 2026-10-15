@@ -1,7 +1,7 @@
 <!-- Generated reference snapshot; edit the canonical source, then run project_memory.py index. -->
 Canonical source: [docs/implementation-progress-2026-10-13.md](../../docs/implementation-progress-2026-10-13.md)
 
-Source content SHA-256: `858a5cd761cba36b27c7c7269b939e767f5e74675407c8c009ef062d38209cf4`
+Source content SHA-256: `83dade941e24bf9ac1a93eec85ebae32597609c9420ed087b4b91fd327ba8eee`
 
 # PhotoCraft revamp implementation progress
 
@@ -202,3 +202,9 @@ Final gates: 8,396 native tests passed (68 ignored), 3,532 corpus-enabled tests 
 Recorded layout assertions passed, with an unplanned tile displacement visible. Two high-depth brush captures failed single-undo pixel restoration after extra history entries, and a third capture timed out before editing; their cause remains unresolved and all failed records are retained. The integrated missing-sidecar recovery retry passed: completed revisions 5/6, owned-child interruption, metadata preserved/removed in the synthetic profile, three editable layers restored dirty with no invented path, native save/reopen and independent whole-image PNG oracle. Recovery footage is 1 second before and 3.5 seconds after; waits/second edit/interruption are transcript evidence. This is not power-loss or interrupted-write qualification.
 
 [Full integration findings and limitations](../../docs/upstream-integration-results-2026-10-14.md), [downloadable recordings and outputs](../../records/README.md). Backlog and Obsidian-compatible local memory updated. Atelier/recipes, input-capture isolation, interaction latency, wider GPU/recovery coverage and independent Photoshop acceptance remain open. No cloud memory, AI service, upstream maintainer issue or nightly rebase was configured.
+
+## Next upstream intake and Codex/Claude allocation ? 15 October 2026
+
+Owner requested a 50/50 work division. Fresh fetch found upstream `df055f3d` at 176 commits / 370 files beyond qualified `ed7df56`; PhotoCreate had no new remote changes. Object-only merge preview found one text conflict in the autosave test, where upstream independently fixes the same race. The clean GPU merge changes DX12 scratch routing and requires new qualification. No source merge or product tests were performed in this planning batch.
+
+[Work ownership, upstream reuse review, sequence and Claude handoff](../../docs/codex-claude-work-plan-2026-10-15.md). Codex: upstream/reliability/performance/integration. Claude: bounded editable poster recipe/readiness/guided tray. Approximately equal effort, separate branches, shared-file ownership and one hardware queue. Claude has not been contacted or started here. Planning records and local memory updated; existing feature completion claims remain unchanged.
