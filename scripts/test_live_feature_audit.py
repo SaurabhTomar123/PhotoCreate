@@ -7,13 +7,49 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import zlib
 
-from live_feature_audit import Audit, RPC, fixture, inventory, release_app_visible
+from live_feature_audit import Audit, RPC, fixture, inventory, main, release_app_visible
 
 
 class AuditTests(unittest.TestCase):
+    def test_cli_exit_and_summary_follow_case_results(self):
+        for fails in [False, True]:
+            with self.subTest(fails=fails), tempfile.TemporaryDirectory() as directory:
+                def cases(audit):
+                    def check(_):
+                        if fails:
+                            raise AssertionError("sample did not restore")
+                        return "sample restored"
+                    audit.case("probe.undo", "Undo", "behavior", check)
+                with patch("sys.argv", ["audit", "--phase", "rendering", "--output", directory]), \
+                        patch.object(Audit, "launch"), patch.object(Audit, "fresh"), \
+                        patch.object(Audit, "rendering_cases", cases), \
+                        patch.object(Audit, "screenshot", side_effect=RuntimeError("no live app")):
+                    self.assertEqual(main(), 1 if fails else 0)
+                summary = json.loads((Path(directory) / "summary.json").read_text(encoding="utf-8"))
+                self.assertEqual(summary["run_status"], "failed" if fails else "completed")
+                self.assertEqual(summary["statuses"], {"failed" if fails else "passed": 1})
+
+    def test_exited_encoder_still_records_capture_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            audit = Audit(argparse.Namespace(output=Path(directory), dwell=0))
+            audit.run_status = "completed"
+            audit.recorder = Mock()
+            audit.recorder.poll.return_value = 0
+            audit.recorder.returncode = 0
+            audit.record_stop = Mock()
+            audit.record_thread = Mock()
+            audit.record_fps, audit.record_frames = 4, 3
+            audit.record_error = "screenshot timeout"
+            audit.finish()
+            metadata = json.loads((Path(directory) / "recording-metadata.json").read_text(encoding="utf-8"))
+            self.assertEqual(metadata["error"], "screenshot timeout")
+            self.assertEqual(metadata["encoder_exit"], 0, "a valid partial video does not prove capture completed")
+            self.assertEqual(audit.run_status, "failed")
+            self.assertIn("screenshot timeout", audit.run_error)
+
     def test_inventory_has_real_tools_and_menu_paths_without_separators(self):
         menus, tools = inventory()
         self.assertGreater(len(menus), 600)

@@ -1059,14 +1059,16 @@ class Audit:
         (self.out / "walkthrough.srt").write_text("\n".join(captions), encoding="utf-8")
 
     def finish(self):
-        if self.recorder and self.recorder.poll() is None:
+        if self.recorder:
             self.record_stop.set()
-            self.record_thread.join(timeout=10)
-            try:
-                self.recorder.wait(timeout=15)
-            except subprocess.TimeoutExpired:
-                self.recorder.terminate()
-                self.recorder.wait(timeout=10)
+            if getattr(self, "record_thread", None):
+                self.record_thread.join(timeout=10)
+            if self.recorder.poll() is None:
+                try:
+                    self.recorder.wait(timeout=15)
+                except subprocess.TimeoutExpired:
+                    self.recorder.terminate()
+                    self.recorder.wait(timeout=10)
             write_json(self.out / "recording-metadata.json", {"method": "live GPU UI screenshot stream", "fps": self.record_fps,
                 "frames": self.record_frames, "error": self.record_error, "encoder_exit": self.recorder.returncode})
         if self.rpc:
@@ -1080,6 +1082,17 @@ class Audit:
                 self.process.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 self.process.terminate()
+        if self.run_status == "completed":
+            failures = sum(row["status"] == "failed" for row in self.rows)
+            reasons = [f"{failures} live case(s) failed"] if failures else []
+            if self.recorder:
+                if self.record_error:
+                    reasons.append(f"Recording failed: {self.record_error}")
+                if self.recorder.returncode != 0:
+                    reasons.append(f"Recording encoder exited with {self.recorder.returncode}")
+            if reasons:
+                self.run_status = "failed"
+                self.run_error = "; ".join(reasons)
         self.report()
         for stream in [self.log, self.app_log, self.record_log]:
             stream.close()
@@ -1169,7 +1182,7 @@ def main():
         if args.inventory_only:
             audit.report()
             print(json.dumps({"menus": len(audit.menus), "tools": len(audit.tools), "output": str(audit.out)}))
-            return
+            return 0
         audit.run_status = "running"
         audit.launch()
         audit.fresh()
@@ -1222,7 +1235,8 @@ def main():
             if awake_prior:
                 restored = execution_state(awake_prior)
                 write_json(audit.out / "display-awake.json", {"requested": True, "set_succeeded": True, "temporary": True, "restore_succeeded": bool(restored)})
+    return 1 if audit.run_status in {"failed", "interrupted"} else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
